@@ -40,7 +40,7 @@ export class WebsocketApp implements Platform {
             connection.on('message', async (message: Message) => {
                 if (validUTFMessage(message)) {
                     const request = this.mapperToAppRequest(message);
-                    const endpoint = this.endpoints.filter(x => x.method === request.path)
+                    const endpoint = this.endpoints.filter(x => x.method === request.path?.toUpperCase())
                     if (endpoint.length === 0) {
                         connection.sendUTF(JSON.stringify({ error: "Endpoint not found" }));
                         return;
@@ -70,8 +70,10 @@ export class WebsocketApp implements Platform {
     register(path: string, router: AppRoute[], middlewares?: Middleware[] | undefined): void {
         this.createRouterForRoutes(router, middlewares)
             .map(x => {
+                let method = (path + "/" + x.endpoints.method + "/" + x.endpoints.path).replace("//", "/").replace(":", "")
+                method = method.startsWith("/") ? method.substring(1) : method;
                 return {
-                    method: (path + "/" + x.endpoints.method + "/" + x.endpoints.path).replace("//", "/").replace(":", ""),
+                    method: method,
                     middlewares: x.middlewares,
                     endpoints: x.endpoints
                 }

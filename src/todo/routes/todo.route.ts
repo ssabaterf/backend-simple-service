@@ -2,14 +2,13 @@
 import { TodoController } from '../controller/todo.controller';
 import { ITodoService } from '../service/todo.service';
 
-const CreateTodoRouter = (todoService: ITodoService)=>{
-    const todoController = new TodoController(todoService);
+const CreateTodoRouter = (todoController: TodoController)=>{
     const router = [
-        { path: '/', method: 'post', handler: todoController.postTodo },
-        { path: '/', method: 'get', handler: todoController.getTodos },
-        { path: '/:id', method: 'get', handler: todoController.getTodoById },
-        { path: '/:id', method: 'put', handler: todoController.putTodoById },
-        { path: '/:id', method: 'delete', handler: todoController.deleteTodoById },
+        { path: '/', method: 'create', handler: todoController.create },
+        { path: '/', method: 'find', handler: todoController.find },
+        { path: '/:id', method: 'find', handler: todoController.findById },
+        { path: '/:id', method: 'update', handler: todoController.update },
+        { path: '/:id', method: 'remove', handler: todoController.remove },
     ]
     return router;
 }

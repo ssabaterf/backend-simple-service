@@ -6,6 +6,7 @@ import { getConfig } from './config';
 import consoleLogger from '../middleware/logger';
 import { Platform } from './Platform.base';
 import { WebsocketApp } from '../platform/websocketFramework';
+import { TodoController } from '../todo/controller/todo.controller';
 
 // This is the main entry point of the application.
 async function main (){
@@ -17,7 +18,8 @@ async function main (){
 
     //Creating the service instance for Todo
     const todoService = new TodoService();
-    const todoEndpoints = CreateTodoRouter(todoService)
+    const todoController = new TodoController(todoService);
+    const todoEndpoints = CreateTodoRouter(todoController)
 
     //Registering the endpoints and middlewares in REST API and Websocket
     platformREST.register('/todo', todoEndpoints, [consoleLogger]);

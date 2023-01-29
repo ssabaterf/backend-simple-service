@@ -19,19 +19,19 @@ export class ExpressApp implements Platform{
     public createRouterForRoutes(routes: AppRoute[], middlewares: Middleware[]= []){
         const router = express.Router();
         routes.forEach(route => {
-            console.log(`Registered REST: [${route.method.toUpperCase()}]\t${route.path}`);
+            console.log(`Registered REST: [${this.convertFromActionToMethod(route.method.toLowerCase())}]\t${route.path}`);
             const middlewareEx = middlewares.map(middleware => this.wraperMiddleware(middleware));
             switch (route.method) {
-                case 'get':
+                case 'find':
                     router.get(route.path, ...middlewareEx, this.wraperHandler(route.handler));
                     break;
-                case 'post':
+                case 'create':
                     router.post(route.path, ...middlewareEx, this.wraperHandler(route.handler));
                     break;
-                case 'put':
+                case 'update':
                     router.put(route.path, ...middlewareEx, this.wraperHandler(route.handler));
                     break;
-                case 'delete':
+                case 'remove':
                     router.delete(route.path, ...middlewareEx, this.wraperHandler(route.handler));
                     break;
             }
@@ -67,6 +67,20 @@ export class ExpressApp implements Platform{
                 const errorResponse = error as Response
                 res.status(errorResponse.status).send(errorResponse.body);
             }
+        }
+    }
+    private convertFromActionToMethod(action: string): string {
+        switch (action) {
+            case 'find':
+                return 'GET';
+            case 'create':
+                return 'POST';
+            case 'update':
+                return 'PUT';
+            case 'remove':
+                return 'DELETE';
+            default:
+                return 'GET';
         }
     }
 }

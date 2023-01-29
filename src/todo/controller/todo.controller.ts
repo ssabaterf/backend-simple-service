@@ -8,19 +8,19 @@ import { Request, Response } from '../../app/Platform.base';
 export class TodoController {
     constructor(private todoService: ITodoService) { }
 
-    async postTodo(request: Request): Promise<Response> {
+    async create(request: Request): Promise<Response> {
         const todo: PostTodo = request.body as PostTodo;
         const { title, description, owner } = todo;
         const newTodo = await this.todoService.addTodo({ id: uuidv4(), title, description, owner, state: "todo" });
         return TodoRequest.CreatedRequest(newTodo);
     }
 
-    async getTodos(request: Request): Promise<Response> {
+    async find(request: Request): Promise<Response> {
         const todos = await this.todoService.listTodos();
         return TodoRequest.SuccessRequest(todos);
     }
 
-    async getTodoById(request: Request): Promise<Response> {
+    async findById(request: Request): Promise<Response> {
         const id = request.params['id'];
         const todo = await this.todoService.findTodoById(id);
         if (!todo) {
@@ -29,7 +29,7 @@ export class TodoController {
         return TodoRequest.SuccessRequest(todo);
     }
 
-    async putTodoById(request: Request): Promise<Response> {
+    async update(request: Request): Promise<Response> {
         const id = request.params['id'];
         const todo: PutTodo = request.body as PutTodo;
         const { title, description, owner, state } = todo;
@@ -45,7 +45,7 @@ export class TodoController {
         return TodoRequest.SuccessRequest(updatedTodo);
     }
 
-    async deleteTodoById(request: Request): Promise<Response> {
+    async remove(request: Request): Promise<Response> {
         const id = request.params['id'];
         const todo = await this.todoService.findTodoById(id);
         if (!todo) {
