@@ -1,0 +1,674 @@
+openapi: 3.0.0
+servers:
+  - description: Dev5 Public EAGS
+    url: http://dev5.metabrokr.net:7002
+info:
+  version: "1.0.0"
+  title: Public EAGS API
+tags:
+  - name: Account
+    description: Call referred to accounts as primary resource
+  - name: Deposit
+    description: Call referred to deposit as primary resource
+  - name: Withdrawal
+    description: Call referred to withdrawal as primary resource
+paths:
+  /accounts:
+    get:
+      tags:
+        - Account
+      summary: Get accounts for the exchange
+      operationId: getAccount
+      responses:
+        "403":
+          description: Forbidden
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+      security:
+        - X-Entity-ID: []
+  /accounts/{accountId}/deposits:
+    get:
+      tags:
+        - Deposit
+      summary: Get deposits for the given account
+      operationId: getDeposits
+      parameters:
+        - name: accountId
+          in: path
+          description: Account id
+          required: true
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description: Number of deposits to skip
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: Number of deposits to return
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "403":
+          description: Forbidden
+        "200":
+          description: Deposits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaginationDeposit"
+      security:
+        - X-Entity-ID: []
+    post:
+      tags:
+        - Deposit
+      summary: Create a new deposit
+      operationId: createDeposit
+      parameters:
+        - name: accountId
+          in: path
+          description: Account id
+          required: true
+          schema:
+            type: string
+      responses:
+        "403":
+          description: Forbidden
+        "201":
+          description: Deposit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepositRequestResponse"
+      security:
+        - X-Entity-ID: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepositRequest"
+  /deposits/{depositId}:
+    get:
+      tags:
+        - Deposit
+      summary: Get deposit by id
+      operationId: getDepositById
+      parameters:
+        - name: depositId
+          in: path
+          description: Deposit id
+          required: true
+          schema:
+            type: string
+      responses:
+        "403":
+          description: Forbidden
+        "200":
+          description: Deposit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepositRequestResponse"
+      security:
+        - X-Entity-ID: []
+  /accounts/{accountId}/withdrawals:
+    get:
+      tags:
+        - Withdrawal
+      summary: Get Withdrawals for the given account
+      operationId: getWithdrawals
+      parameters:
+        - name: accountId
+          in: path
+          description: Account id
+          required: true
+          schema:
+            type: string
+        - name: skip
+          in: query
+          description: Number of withdrawals to skip
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: Number of withdrawals to return
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "403":
+          description: Forbidden
+        "200":
+          description: Accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Withdrawal"
+      security:
+        - X-Entity-ID: []
+    post:
+      tags:
+        - Withdrawal
+      summary: Create a new withdrawal
+      operationId: createWithdrawal
+      parameters:
+        - name: accountId
+          in: path
+          description: Account id
+          required: true
+          schema:
+            type: string
+      responses:
+        "403":
+          description: Forbidden
+        "201":
+          description: Withdrawal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalRequestResponse"
+      security:
+        - X-Entity-ID: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalRequest"
+  /withdrawals/{withdrawalsId}:
+    get:
+      tags:
+        - Withdrawal
+      summary: Get withdrawal by id
+      operationId: getWithdrawalById
+      parameters:
+        - name: withdrawalsId
+          in: path
+          description: Withdrawal id
+          required: true
+          schema:
+            type: string
+      responses:
+        "403":
+          description: Forbidden
+        "200":
+          description: Deposit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WithdrawalRequestResponse"
+      security:
+        - X-Entity-ID: []
+externalDocs:
+  description: Find out more about Swagger
+  url: "http://swagger.io"
+components:
+  schemas:
+    DepositRequest:
+      required:
+        - amount
+        - security
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        metadata:
+          type: string
+        exchange_reference_id:
+          type: string
+    DepositRequestResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - "REQUESTED"
+            - "APPROVED"
+            - "COMPLETED"
+            - "REJECTED"
+          default: "REQUESTED"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        metadata:
+          type: string
+        exchange_reference_id:
+          type: string
+        deposit_instructions:
+          type: object
+          properties:
+            banK:
+              type: string
+            routing_number:
+              type: string
+            account_number:
+              type: string
+            account_name:
+              type: string
+            description:
+              type: string
+            reference:
+              type: string
+            swift_code:
+              type: string
+    Deposit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - "REQUESTED"
+            - "APPROVED"
+            - "COMPLETED"
+            - "REJECTED"
+          default: "REQUESTED"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        metadata:
+          type: string
+        exchange_reference_id:
+          type: string
+    Account:
+      type: object
+      properties:
+        account_id:
+          type: string
+        description:
+          type: string
+        exchange_id:
+          type: string
+        "type":
+          type: string
+          "enum": ["HOUSE", "INSTITUTIONAL", "CUSTOMER"]
+        balance:
+          type: object
+          properties:
+            USD:
+              type: object
+              properties:
+                available:
+                  type: number
+                  format: float
+                reserved:
+                  type: number
+                  format: float
+            EUR:
+              type: object
+              properties:
+                available:
+                  type: number
+                  format: float
+                reserved:
+                  type: number
+                  format: float
+            CAD:
+              type: object
+              properties:
+                available:
+                  type: number
+                  format: float
+                reserved:
+                  type: number
+                  format: float
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    WithdrawalRequest:
+      required:
+        - amount
+        - security
+        - destinationType
+        - destinationDetail
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        description:
+          type: string
+        exchange_reference_id:
+          type: string
+        destinationType:
+          type: string
+          enum: ["BANK", "CRYPTO"]
+        destinationDetail:
+          type: object
+          properties:
+            banK:
+              type: object
+              properties:
+                banK_name:
+                  type: string
+                routing_number:
+                  type: string
+                swift_code:
+                  type: string
+                address:
+                  type: object
+                  properties:
+                    line1:
+                      type: string
+                    line2:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    postal_code:
+                      type: string
+                    country:
+                      type: string
+            intermediary:
+              type: object
+              properties:
+                banK_name:
+                  type: string
+                routing_number:
+                  type: string
+                swift_code:
+                  type: string
+                address:
+                  type: object
+                  properties:
+                    line1:
+                      type: string
+                    line2:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    postal_code:
+                      type: string
+                    country:
+                      type: string
+            beneficairy:
+              type: object
+              properties:
+                account_number:
+                  type: string
+                account_holder_name:
+                  type: string
+                address:
+                  type: object
+                  properties:
+                    line1:
+                      type: string
+                    line2:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    postal_code:
+                      type: string
+                    country:
+                      type: string
+            crypto_address:
+              type: string
+            crypto_network:
+              type: string
+            crypto_tag:
+              type: string
+            crypto_memo:
+              type: string
+    WithdrawalRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - "REQUESTED"
+            - "APPROVED"
+            - "COMPLETED"
+            - "REJECTED"
+          default: "REQUESTED"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        description:
+          type: string
+        exchange_reference_id:
+          type: string
+        destination:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            type:
+              type: string
+              enum: ["BANK", "CRYPTO"]
+            detail:
+              type: object
+              properties:
+                banK:
+                  type: object
+                  properties:
+                    banK_name:
+                      type: string
+                    routing_number:
+                      type: string
+                    swift_code:
+                      type: string
+                    address:
+                      type: object
+                      properties:
+                        line1:
+                          type: string
+                        line2:
+                          type: string
+                        city:
+                          type: string
+                        state:
+                          type: string
+                        postal_code:
+                          type: string
+                        country:
+                          type: string
+                intermediary:
+                  type: object
+                  properties:
+                    banK_name:
+                      type: string
+                    routing_number:
+                      type: string
+                    swift_code:
+                      type: string
+                    address:
+                      type: object
+                      properties:
+                        line1:
+                          type: string
+                        line2:
+                          type: string
+                        city:
+                          type: string
+                        state:
+                          type: string
+                        postal_code:
+                          type: string
+                        country:
+                          type: string
+                beneficiary:
+                  type: object
+                  properties:
+                    account_number:
+                      type: string
+                    account_holder_name:
+                      type: string
+                    address:
+                      type: object
+                      properties:
+                        line1:
+                          type: string
+                        line2:
+                          type: string
+                        city:
+                          type: string
+                        state:
+                          type: string
+                        postal_code:
+                          type: string
+                        country:
+                          type: string
+                crypto_address:
+                  type: string
+                crypto_network:
+                  type: string
+                crypto_tag:
+                  type: string
+                crypto_memo:
+                  type: string
+    Withdrawal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+            - "REQUESTED"
+            - "APPROVED"
+            - "COMPLETED"
+            - "REJECTED"
+          default: "REQUESTED"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        account_id:
+          type: string
+        amount:
+          type: number
+          format: float
+        security:
+          type: string
+          enum: ["USD", "EUR", "CAD"]
+        description:
+          type: string
+        exchange_reference_id:
+          type: string
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        detail:
+          type: object
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    PaginationDeposit:
+      type: object
+      properties:
+        skip:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+          format: int64
+        total:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Deposit"
+    PaginationWithdrawal:
+      type: object
+      properties:
+        skip:
+          type: integer
+          format: int64
+        limit:
+          type: integer
+          format: int64
+        total:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Withdrawal"
+  securitySchemes:
+    X-Entity-ID:
+      type: "apiKey"
+      in: "header"
+      name: "X-Entity-ID"

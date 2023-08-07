@@ -1,0 +1,12 @@
+{
+    "port": 3000,
+    "host": "localhost",
+    "applicationName": "nodejs-express-mongodb",
+    "database": {
+        "host": "localhost",
+        "port": 27017,
+        "username": null,
+        "password": null,
+        "dbname": "application-template"
+    }
+}
